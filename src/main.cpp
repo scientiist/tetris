@@ -138,6 +138,8 @@ public:
         return true;
     }
 
+
+
     void DrawBoard()
     {
         for (int x = 0; x < fieldWidth; x++)
@@ -147,7 +149,11 @@ public:
                 auto cell = pField[y*fieldWidth + x];
                 if (cell > 0)
                 {
-                    this->FillRect(x*4, y*4, 4, 4, tetcolors[cell]);
+                    olc::Pixel color = tetcolors[cell];
+                    olc::Pixel outline = color*0.5;
+                    this->FillRect(x*4, y*4, 4, 4, color);
+                    this->FillRect(x*4, y*4, 1, 4, outline);
+                    this->FillRect(x*4, y*4, 4, 1, outline);
                 }
             }
         }
@@ -158,11 +164,26 @@ public:
         for (int px = 0; px < 4; px++)
             for (int py = 0; py < 4; py++)
                 if (tetramino[currentPiece][rotate(px, py, currentRotation)]==L'X')
+                {
+
+                    olc::Pixel color = tetcolors[currentPiece+1];
                     this->FillRect(
                             (currentX+px)*4,
                             (currentY+py)*4,
                             4, 4,
-                            tetcolors[currentPiece+1]);
+                            color);
+                    olc::Pixel outline = color*0.5;
+                    this->FillRect(
+                            (currentX+px)*4,
+                            (currentY+py)*4,
+                            4, 1, outline);
+                    this->FillRect(
+                            (currentX+px)*4,
+                            (currentY+py)*4,
+                            1, 4, outline);
+                }
+
+
     }
 
     void DrawInfo()
@@ -307,11 +328,7 @@ public:
         Render();
         return true;
     }
-
-
 };
-
-
 
 int main() {
 
