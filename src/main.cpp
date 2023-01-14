@@ -124,6 +124,8 @@ public:
 
     float gamespeed = 1; // Increment to speed up gameticks
 
+    bool gameOver = false;
+
 
     std::vector<int> vLines;
 
@@ -131,6 +133,7 @@ public:
     {
         sAppName = "Tetris in C++ by Josh";
         score = 0;
+        ResetGameState();
         // Clear board
     }
     bool OnUserCreate() override
@@ -138,6 +141,16 @@ public:
         return true;
     }
 
+    void ResetGameState()
+    {
+        score = 0;
+        gameTime = 0;
+        currentPiece = 0;
+        currentRotation = 0;
+        currentX = fieldWidth / 2;
+        currentY = 0;
+        float gamespeed = 1;
+    }
 
 
     void DrawBoard()
@@ -298,6 +311,7 @@ public:
             DropCurrentPiece();
             CheckForTetris();
             NextPiece();
+            gamespeed++;
 
             if (!vLines.empty())
             {
@@ -309,7 +323,18 @@ public:
         }
 
         // if piece does not fit
-        bool gameOver = does_piece_fit(currentPiece, currentRotation, currentX, currentY);
+        gameOver = !does_piece_fit(currentPiece, currentRotation, currentX, currentY);
+        if (gameOver)
+        {
+
+            DrawString(0, 0, "YOU LOSE FUCKFACE :(");
+            // TODO: Reset
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(500ms);
+            ResetGameState();
+            return;
+        }
+
     }
 
     bool OnUserUpdate(float delta) override
