@@ -172,36 +172,48 @@ public:
         }
     }
 
-    void DrawCurrentPiece()
+    void DrawTetramino(int pieceID, int curX, int curY, int rot)
     {
         for (int px = 0; px < 4; px++)
             for (int py = 0; py < 4; py++)
-                if (tetramino[currentPiece][rotate(px, py, currentRotation)]==L'X')
+                if (tetramino[pieceID][rotate(px, py, rot)]==L'X')
                 {
 
-                    olc::Pixel color = tetcolors[currentPiece+1];
+                    olc::Pixel color = tetcolors[pieceID+1];
                     this->FillRect(
-                            (currentX+px)*4,
-                            (currentY+py)*4,
+                            (curX+px)*4,
+                            (curY+py)*4,
                             4, 4,
                             color);
                     olc::Pixel outline = color*0.5;
                     this->FillRect(
-                            (currentX+px)*4,
-                            (currentY+py)*4,
+                            (curX+px)*4,
+                            (curY+py)*4,
                             4, 1, outline);
                     this->FillRect(
-                            (currentX+px)*4,
-                            (currentY+py)*4,
+                            (curX+px)*4,
+                            (curY+py)*4,
                             1, 4, outline);
                 }
+    }
 
 
+    void DrawCurrentPiece()
+    {
+        DrawTetramino(currentPiece, currentX, currentY, currentRotation);
     }
 
     void DrawInfo()
     {
-        DrawString(0, 80, "Scr:"+ std::to_string(score));
+        if (gameOver)
+        {
+            DrawString(50, 0, "YOU LOSE,");
+            DrawString(50, 10, "FUCKFACE!");
+        } else {
+            DrawString(50, 0, "Scr:"+ std::to_string(score));
+            // Draw Next Piece
+            DrawString(50, 10, "Next: ");
+        }
     }
 
     void Input()
@@ -304,6 +316,18 @@ public:
     }
     void GameTick()
     {
+
+        // if piece does not fit
+        gameOver = !does_piece_fit(currentPiece, currentRotation, currentX, currentY);
+        if (gameOver)
+        {
+
+
+
+            //ResetGameState();
+            return;
+        }
+
         // Can the piece move?
         if (does_piece_fit(currentPiece, currentRotation, currentX, currentY+1)) {
             currentY++;
@@ -322,18 +346,7 @@ public:
             }
         }
 
-        // if piece does not fit
-        gameOver = !does_piece_fit(currentPiece, currentRotation, currentX, currentY);
-        if (gameOver)
-        {
 
-            DrawString(0, 0, "YOU LOSE FUCKFACE :(");
-            // TODO: Reset
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(500ms);
-            ResetGameState();
-            return;
-        }
 
     }
 
@@ -362,7 +375,7 @@ int main() {
     setup_playing_field();
 
     Tetris game;
-    if (game.Construct(92, 128, 4, 4))
+    if (game.Construct(128, 72, 4, 4))
         game.Start();
     return 0;
 }
